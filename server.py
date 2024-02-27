@@ -1,6 +1,5 @@
 import configparser
 import os
-import sys
 
 path_dir = os.path.dirname(__file__)
 path_data_dir = os.path.join(path_dir, "data")
