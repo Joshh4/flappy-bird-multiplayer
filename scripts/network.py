@@ -1,3 +1,16 @@
+"""
+
+This network.py file is responsible for handling
+UDP + TCP hybrid client-server connections.
+
+Latest update:
+28-02-24
+
+Current version:
+v0.0.1
+
+"""
+
 import errno
 import logging
 import pickle
@@ -471,6 +484,19 @@ class HSystem():
                 self.server_udp.send_event(event, addr)
         else:
             self.server_udp.send_event(event, addr)
+    
+    def get_client_model(self, cid:str) -> Union[any, None]:
+        """Gets a client model from a provided cid.
+
+        Args:
+            cid (str): The client's id.
+
+        Returns:
+            any | None: The client model, or None.
+        """
+        client = self.clients.get(cid)
+        if client is None: return None
+        return client.model
 
     def pump(self):
         result = HSystemPumpResult([], [], [], [])

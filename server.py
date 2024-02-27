@@ -10,21 +10,20 @@ config = configparser.RawConfigParser()
 config.read(path_config_file)
 
 from scripts import network
+from scripts import serverclasses
 
 server_ip = network.Utility.get_local_ip()
 server_port_tcp = int(config.get("SERVER", "SERVER_PORT_TCP", fallback=9884))
 server_port_udp = int(config.get("SERVER", "SERVER_PORT_UDP", fallback=9885))
 
-class ClientModel():
-    def __init__(self):
-        pass
-
 system = network.HSystem(
     ip=server_ip,
     port_tcp=server_port_tcp,
     port_udp=server_port_udp,
-    client_model=ClientModel
+    client_model=serverclasses.ClientModel
 )
+
+game_manager = serverclasses.ServerGameManager()
 
 print(f"Server is active at {server_ip}")
 
