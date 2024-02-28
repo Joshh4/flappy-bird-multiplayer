@@ -4,6 +4,8 @@ from scripts.ui import (
     UiManager,
     UiPage,
     Element,
+    Container,
+    ElementRenderer,
     Label
 )
 
@@ -55,5 +57,23 @@ def init_ui(
         text_alignment=(0,-1),
         font=font_secondary
     ))
+
+    _button_1 = Container(
+        identifier="button_1",
+        rect=pygame.Rect(10, 30, 80, 10))
+    _button_1_left = _button_1.add_child(Element(
+        "button_1_left",
+        rect=pygame.Rect(0,0,2,10),
+        renderer=ElementRenderer()
+    ))
+    _button_1_left.renderer.color = (230, 230, 230)
+    _button_1_text = _button_1.add_child(Label(
+        identifier="button_1_text",
+        position=( 5, 2 ),
+        text="Join A Game",
+        text_alignment=(-1, -1),
+        font=font_main
+    ))
+    _page.add_element(_button_1)
 
     manager.add_page(_page)

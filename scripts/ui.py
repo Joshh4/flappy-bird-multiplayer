@@ -54,7 +54,7 @@ class UiPage(object):
             renderer=ElementRenderer.empty_renderer())
     
     def add_element(self, element:"Element") -> None:
-        self.root.children.append(element)
+        self.root.add_child(element)
     
     def get_element(self, path:str) -> Union["Element", None]:
         """Gets an element given a path.
@@ -88,6 +88,7 @@ class ElementRenderer(object):
     def __init__(self):
         self.show_rect = True
         self.rect_width = 0
+        self.color = (255, 255, 255)
         self.rect_border_radius = -1
         self.rect_border_top_left_radius = -1
         self.rect_border_top_right_radius = -1
@@ -98,7 +99,7 @@ class ElementRenderer(object):
         if self.show_rect:
             pygame.draw.rect(
                 surface=surface,
-                color=(200,200,250),
+                color=self.color,
                 rect=element.rect,
                 width=self.rect_width,
                 border_radius=self.rect_border_radius,
@@ -112,18 +113,39 @@ class ElementRenderer(object):
 class Element(object):
     identifier: str
     children: List["Element"]
-    rect: Union[pygame.Rect, None]
+    rect: pygame.Rect
     renderer: ElementRenderer
+    parent: "Element"
 
     def __init__(self,
                  identifier:str,
                  rect:Union[pygame.Rect, tuple, None]=None,
                  renderer:Union[ElementRenderer, None]=None) -> None:
+        self.parent = None
         self.children = []
         self.identifier = identifier
-        self.rect = rect
+        self.local_rect = pygame.Rect(0,0,0,0) if rect is None else rect
+        self.refresh_global_rect()
         self.renderer = renderer or ElementRenderer()
-        print(self.identifier, self.renderer.show_rect)
+    
+    def refresh_global_rect(self):
+        print(f"Refresh global rect {self.identifier}")
+        if self.parent is None:
+            self.rect = self.local_rect
+        else:
+            self.rect = self.local_rect.copy()
+            self.rect.x += self.parent.rect.x
+            self.rect.y += self.parent.rect.y
+            print(f"Offset by {self.parent.rect.x}, {self.parent.rect.y}")
+
+    def set_parent(self, parent:"Element"):
+        self.parent = parent
+    
+    def add_child(self, child:"Element") -> "Element":
+        child.set_parent(self)
+        self.children.append(child)
+        child.refresh_global_rect()
+        return child
     
     def get_child_by_identifier(self, identifier:str) -> Union["Element", None]:
         """Gets this element's child based on identifier.
@@ -169,6 +191,13 @@ class Element(object):
         for child in self.children:
             child.render(surface)
 
+class Container(Element):
+    def __init__(self,
+                 identifier: str,
+                 rect: Union[pygame.Rect, Tuple, None] = None) -> None:
+        super().__init__(identifier=identifier,
+                         rect=rect,
+                         renderer=ElementRenderer.empty_renderer())
 
 class Label(Element):
     text: str
