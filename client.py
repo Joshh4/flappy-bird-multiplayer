@@ -26,6 +26,8 @@ import pygame
 from pygame.locals import *
 from scripts import network
 from scripts import spritefont
+from scripts import ui
+import ui_loader
 
 # Initialize constants retrieved from config
 
@@ -46,6 +48,16 @@ font_main = spritefont.SpriteFont(
 
 application_state = ApplicationState.CONNECTING
 
+ui_manager = ui.UiManager()
+ui_loader.init_ui(
+    manager=ui_manager,
+    path_font_file=path_font_file)
+
+ui_manager.set_page("connecting")
+
+
+
+
 # Initialize the client
 
 client = network.HClient(
@@ -60,8 +72,11 @@ client.connect()
 
 # Main event loop
 
+clock = pygame.time.Clock()
 running = True
 while running:
+    dt = clock.tick(61) * 0.001
+
     result = client.pump()
     pygame_events = pygame.event.get()
 
@@ -77,21 +92,19 @@ while running:
     for event_udp in result.events_udp:
         print("UDP event:", event_udp)
     
+    # Allow the ui manager to process inputs
+    
+    ui_manager.update(pygame_events)
+    
     # Draw screen and handle updates depending on the application state
     
-    screen.fill((60,70,90))
+    screen.fill((40,45,50))
 
-    if application_state == ApplicationState.CONNECTING:
+    ui_manager.render(screen)
 
+    if ui_manager.current_page_identifier == "connecting":
         if client.ready:
-            application_state = ApplicationState.MAIN_MENU
-
-        # display some text saying connecting to server
-        font_main.render_to("Connecting to server...", screen, (20, 190), (-1, 1))
-
-    elif application_state == ApplicationState.MAIN_MENU:
-        font_main.render_to("Flappy Friends", screen, (150, 5), (0, -1))
-        font_main.render_to("Main Menu", screen, (150, 15), (0, -1))
+            ui_manager.set_page("main")
 
     display.blit(pygame.transform.scale(screen, (900, 600)), (0,0))
 
