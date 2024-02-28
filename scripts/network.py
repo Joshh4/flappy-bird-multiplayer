@@ -444,8 +444,8 @@ class HClientPumpResult:
 class HSystemPumpResult:
     new_clients:list[HSystemClient]
     disconnected_clients:list[HSystemClient]
-    events_tcp:list[HSystemClient, Event]
-    events_udp:list[HSystemClient, Event]
+    events_tcp:list[Tuple[HSystemClient, Event]]
+    events_udp:list[Tuple[HSystemClient, Event]]
 
 class HSystem():
     def __init__(
